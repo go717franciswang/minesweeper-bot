@@ -1,0 +1,109 @@
+
+<html>
+   <head>
+      <style type="text/css">
+         .sikuli-code {
+            font-size: 20px;
+            font-family: "Osaka-mono", Monospace;
+            line-height: 1.5em;
+            display:table-cell;
+            white-space: pre-wrap;       /* css-3 */
+            white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+            white-space: -pre-wrap;      /* Opera 4-6 */
+            white-space: -o-pre-wrap;    /* Opera 7 */
+            word-wrap: break-word;       /* Internet Explorer 5.5+ */
+            width: 99%;   /* remove horizontal scroll-bar when viewing in IE7 */
+         }
+         .sikuli-code img {
+            vertical-align: middle;
+            margin: 2px;
+            border: 1px solid #ccc;
+            padding: 2px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            -moz-box-shadow: 1px 1px 1px gray;
+            -webkit-box-shadow: 1px 1px 2px gray;
+         }
+         .kw {
+            color: blue;
+         }
+         .skw {
+            color: rgb(63, 127, 127);
+         }
+
+         .str {
+            color: rgb(128, 0, 0);
+         }
+
+         .dig {
+            color: rgb(128, 64, 0);
+         }
+
+         .cmt {
+            color: rgb(200, 0, 200);
+         }
+
+         h2 {
+            display: inline;
+            font-weight: normal;
+         }
+
+         .info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: none;
+         }
+
+         a {
+            color: #9D2900;
+         }
+
+         body {
+            font-family: "Trebuchet MS", Arial, Sans-Serif;
+         }
+
+      </style>
+   </head>
+<body>
+<div class="info">
+<h2>minesweeper.sikuli</h2> <a href="minesweeper.zip">(Download this script)</a>
+</div>
+<pre class="sikuli-code">
+location = <span class="skw">find</span>(<img src="Screen Shot 2017-02-09 at 4.11.06 PM.png" />).getTarget()
+box_patterns = {
+        <span class="str">'0'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 4.53.58 PM.png" />).exact(),
+        <span class="str">'1'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.23.40 PM.png" />).exact(),
+        <span class="str">'2'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.28.10 PM.png" />).exact(),
+        <span class="str">'3'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.28.15 PM.png" />).exact(),
+        <span class="str">'4'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.49.16 PM.png" />).exact(),
+        <span class="str">'5'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.50.30 PM.png" />).exact(),
+        <span class="str">'6'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.52.50 PM.png" />).exact(),
+        <span class="str">'7'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 5.55.42 PM.png" />).exact()}
+x = location.getX()-<span class="dig">448</span>
+y = location.getY()+<span class="dig">30</span>
+box_size = <span class="dig">30</span>
+w = <span class="dig">30</span>*box_size
+h = <span class="dig">16</span>*box_size
+
+board = <span class="str">""</span>
+
+<span class="kw">def</span> match(region, pattern):
+    <span class="kw">try</span>:
+        <span class="kw">return</span> region.findAll(pattern)
+    <span class="kw">except</span> FindFailed:
+        <span class="kw">return</span> []
+
+board = (<span class="str">"_"</span>*<span class="dig">30</span>+<span class="str">"\n"</span>)*<span class="dig">16</span>
+r = Region(x, y, w, h)
+<span class="kw">for</span> k, pattern <span class="kw">in</span> box_patterns.iteritems():
+    <span class="kw">for</span> m <span class="kw">in</span> match(r, pattern):
+        x0 = (m.getX()-x)//<span class="dig">30</span>
+        y0 = (m.getY()-y)//<span class="dig">30</span>
+        i = y0*<span class="dig">31</span>+x0
+        board = board[:i] + k + board[i+<span class="dig">1</span>:]
+
+<span class="kw">print</span> board
+</pre>
+</body>
+</html>
