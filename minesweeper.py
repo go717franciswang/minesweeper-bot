@@ -1,3 +1,4 @@
+import solver
 location = find("Screen Shot 2017-02-09 at 4.11.06 PM.png").getTarget()
 box_patterns = {
         '0': Pattern("Screen Shot 2017-02-09 at 4.53.58 PM.png").exact(),
@@ -32,4 +33,5 @@ for k, pattern in box_patterns.iteritems():
         board = board[:i] + k + board[i+1:]
 
 print board
+solver.test()
         

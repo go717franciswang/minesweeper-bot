@@ -70,6 +70,7 @@
 <h2>minesweeper.sikuli</h2> <a href="minesweeper.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
+<span class="kw">import</span> solver
 location = <span class="skw">find</span>(<img src="Screen Shot 2017-02-09 at 4.11.06 PM.png" />).getTarget()
 box_patterns = {
         <span class="str">'0'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 4.53.58 PM.png" />).exact(),
@@ -104,6 +105,7 @@ r = Region(x, y, w, h)
         board = board[:i] + k + board[i+<span class="dig">1</span>:]
 
 <span class="kw">print</span> board
+solver.test()
 </pre>
 </body>
 </html>
