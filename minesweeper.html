@@ -70,7 +70,8 @@
 <h2>minesweeper.sikuli</h2> <a href="minesweeper.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
-<span class="kw">import</span> solver
+<span class="kw">from</span> solver <span class="kw">import</span> Solver
+<span class="kw">import</span> time
 location = <span class="skw">find</span>(<img src="Screen Shot 2017-02-09 at 4.11.06 PM.png" />).getTarget()
 box_patterns = {
         <span class="str">'0'</span>: Pattern(<img src="Screen Shot 2017-02-09 at 4.53.58 PM.png" />).exact(),
@@ -95,17 +96,24 @@ board = <span class="str">""</span>
     <span class="kw">except</span> FindFailed:
         <span class="kw">return</span> []
 
-board = (<span class="str">"_"</span>*<span class="dig">30</span>+<span class="str">"\n"</span>)*<span class="dig">16</span>
-r = Region(x, y, w, h)
-<span class="kw">for</span> k, pattern <span class="kw">in</span> box_patterns.iteritems():
-    <span class="kw">for</span> m <span class="kw">in</span> match(r, pattern):
-        x0 = (m.getX()-x)//<span class="dig">30</span>
-        y0 = (m.getY()-y)//<span class="dig">30</span>
-        i = y0*<span class="dig">31</span>+x0
-        board = board[:i] + k + board[i+<span class="dig">1</span>:]
+has_move = True
+<span class="kw">while</span> has_move:
+    board = (<span class="str">"_"</span>*<span class="dig">30</span>+<span class="str">"\n"</span>)*<span class="dig">16</span>
+    r = Region(x, y, w, h)
+    <span class="kw">for</span> k, pattern <span class="kw">in</span> box_patterns.iteritems():
+        <span class="kw">for</span> m <span class="kw">in</span> match(r, pattern):
+            x0 = (m.getX()-x)//<span class="dig">30</span>
+            y0 = (m.getY()-y)//<span class="dig">30</span>
+            i = y0*<span class="dig">31</span>+x0
+            board = board[:i] + k + board[i+<span class="dig">1</span>:]
 
-<span class="kw">print</span> board
-solver.test()
+    solver = Solver.from_string(board, <span class="dig">30</span>, <span class="dig">16</span>)
+    solver.solve()
+    <span class="kw">for</span> r,c <span class="kw">in</span> solver.revealed_numbers:
+        loc = Location(x+c*<span class="dig">30</span>+<span class="dig">15</span>, y+r*<span class="dig">30</span>+<span class="dig">15</span>)
+        <span class="skw">doubleClick</span>(loc)
+    has_move = len(solver.revealed_numbers) &gt; <span class="dig">0</span>
+    hover(location)
 </pre>
 </body>
 </html>

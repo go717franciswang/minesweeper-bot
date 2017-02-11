@@ -70,8 +70,90 @@
 <h2>minesweeper.sikuli</h2> <a href="minesweeper.zip">(Download this script)</a>
 </div>
 <pre class="sikuli-code">
-<span class="kw">def</span> test():
-    <span class="kw">print</span> <span class="str">'it works!'</span>
+EMPTY = <span class="dig">0</span>
+ONE = <span class="dig">1</span>
+TWO = <span class="dig">2</span>
+THREE = <span class="dig">3</span>
+FOUR = <span class="dig">4</span>
+FIVE = <span class="dig">5</span>
+SIX = <span class="dig">6</span>
+SEVEN = <span class="dig">7</span>
+EIGHT = <span class="dig">8</span>
+BOMB = <span class="dig">9</span>
+HIDDEN = <span class="dig">10</span>
+NUMBER = <span class="dig">11</span>
+
+<span class="kw">def</span> char2box(char):
+    <span class="kw">if</span> char == <span class="str">'_'</span>:
+        <span class="kw">return</span> HIDDEN
+    <span class="kw">else</span>:
+        <span class="kw">return</span> int(char)
+
+<span class="kw">class</span> Board:
+    <span class="kw">def</span> __init__(self, board_matrix, w, h):
+        self.board_matrix = board_matrix
+        self.w = w
+        self.h = h
+        self.revealed = False
+
+    <span class="kw">def</span> each_number_box(self):
+        <span class="kw">for</span> i <span class="kw">in</span> xrange(len(self.board_matrix)):
+            <span class="kw">if</span> self.board_matrix[i] &lt; <span class="dig">9</span>:
+                <span class="kw">yield</span> (i//self.w, i%self.w), self.board_matrix[i]
+
+    <span class="kw">def</span> hidden_around(self, pos):
+        <span class="kw">return</span> [p <span class="kw">for</span> p <span class="kw">in</span> self.around(pos) <span class="kw">if</span> self[p] == HIDDEN]
+
+    <span class="kw">def</span> bombs_around(self, pos):
+        <span class="kw">return</span> [p <span class="kw">for</span> p <span class="kw">in</span> self.around(pos) <span class="kw">if</span> self[p] == BOMB]
+
+    <span class="kw">def</span> around(self, pos):
+        r, c = pos
+        <span class="kw">for</span> dr <span class="kw">in</span> xrange(-<span class="dig">1</span>,<span class="dig">2</span>):
+            <span class="kw">if</span> r+dr&lt;<span class="dig">0</span> <span class="kw">or</span> r+dr&gt;=self.h:
+                <span class="kw">continue</span>
+            <span class="kw">for</span> dc <span class="kw">in</span> xrange(-<span class="dig">1</span>,<span class="dig">2</span>):
+                <span class="kw">if</span> dr==<span class="dig">0</span> <span class="kw">and</span> dc==<span class="dig">0</span>:
+                    <span class="kw">continue</span>
+                <span class="kw">if</span> c+dc&lt;<span class="dig">0</span> <span class="kw">or</span> c+dc&gt;=self.w:
+                    <span class="kw">continue</span>
+                <span class="kw">yield</span> (r+dr, c+dc)
+
+    <span class="kw">def</span> __getitem__(self, pos):
+        r, c = pos
+        <span class="kw">return</span> self.board_matrix[r*self.w+c]
+
+    <span class="kw">def</span> __setitem__(self, pos, value):
+        r, c = pos
+        self.board_matrix[r*self.w+c] = value
+        self.revealed = True
+
+<span class="kw">class</span> Solver:
+    <span class="kw">def</span> __init__(self, board):
+        self.board = board
+        self.revealed_numbers = []
+
+    <span class="kw">def</span> solve(self):
+        <span class="kw">for</span> pos, n <span class="kw">in</span> self.board.each_number_box():
+            hiddens = self.board.hidden_around(pos)
+            bombs = self.board.bombs_around(pos)
+            <span class="kw">if</span> len(hiddens) == n-len(bombs):
+                <span class="kw">for</span> p <span class="kw">in</span> hiddens:
+                    self.board[p] = BOMB
+
+            <span class="kw">if</span> n-len(bombs) == <span class="dig">0</span>:
+                <span class="kw">for</span> p <span class="kw">in</span> hiddens:
+                    self.board[p] = NUMBER
+                    self.revealed_numbers.append(p)
+
+        <span class="kw">if</span> self.board.revealed:
+            self.board.revealed = False
+            <span class="kw">return</span> self.solve()
+
+    @staticmethod
+    <span class="kw">def</span> from_string(s, w, h):
+        board = Board([char2box(c) <span class="kw">for</span> c <span class="kw">in</span> s <span class="kw">if</span> c != <span class="str">'\n'</span>], w, h)
+        <span class="kw">return</span> Solver(board)
 </pre>
 </body>
 </html>
