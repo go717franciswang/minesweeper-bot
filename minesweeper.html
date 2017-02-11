@@ -88,8 +88,6 @@ box_size = <span class="dig">30</span>
 w = <span class="dig">30</span>*box_size
 h = <span class="dig">16</span>*box_size
 
-board = <span class="str">""</span>
-
 <span class="kw">def</span> match(region, pattern):
     <span class="kw">try</span>:
         <span class="kw">return</span> region.findAll(pattern)
@@ -97,6 +95,7 @@ board = <span class="str">""</span>
         <span class="kw">return</span> []
 
 has_move = True
+Settings.MoveMouseDelay = <span class="dig">0</span>
 <span class="kw">while</span> has_move:
     board = (<span class="str">"_"</span>*<span class="dig">30</span>+<span class="str">"\n"</span>)*<span class="dig">16</span>
     r = Region(x, y, w, h)
@@ -111,7 +110,11 @@ has_move = True
     solver.solve()
     <span class="kw">for</span> r,c <span class="kw">in</span> solver.revealed_numbers:
         loc = Location(x+c*<span class="dig">30</span>+<span class="dig">15</span>, y+r*<span class="dig">30</span>+<span class="dig">15</span>)
-        <span class="skw">doubleClick</span>(loc)
+        mouseMove(loc)
+        mouseDown(Button.LEFT)
+        time.<span class="skw">sleep</span>(<span class="dig">0.5</span>)
+        mouseUp(Button.LEFT)
+        <span class="cmt"># click(loc)</span>
     has_move = len(solver.revealed_numbers) &gt; <span class="dig">0</span>
     hover(location)
 </pre>
