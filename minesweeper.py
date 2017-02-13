@@ -13,8 +13,10 @@ box_patterns = {
 x = int(location.getX()-448)
 y = int(location.getY()+30)
 box_size = 30
-w = 30*box_size
-h = 16*box_size
+box_w = 30
+box_h = 16
+w = box_w*box_size
+h = box_h*box_size
 
 def match(region, pattern):
     try:
@@ -24,24 +26,27 @@ def match(region, pattern):
 
 has_move = True
 Settings.MoveMouseDelay = 0
-# might need to separate the region due to too many matches
-board_region = Region(x, y, w, h)
+# split the board into segments
+h0 = box_h//2*box_size
+board_regions = [Region(x, y, w, h0), Region(x, y+h0, w, h-h0)]
 while has_move:
     board = ("_"*30+"\n")*16
     print 'Analyzing patterns..'
     for k, pattern in box_patterns.iteritems():
-        for m in match(board_region, pattern):
-            x0 = (m.getX()-x)//30
-            y0 = (m.getY()-y)//30
-            i = int(y0*31+x0)
-            board = board[:i] + k + board[i+1:]
+        for region in board_regions:
+            for m in match(region, pattern):
+                x0 = (m.getX()-x)//30
+                y0 = (m.getY()-y)//30
+                i = int(y0*31+x0)
+                board = board[:i] + k + board[i+1:]
     print board
 
     solver = Solver.from_string(board, 30, 16)
     solver.solve()
-    print solver.revealed_numbers
-    for r,c in solver.revealed_numbers:
-        loc = Location(x+c*30+15, y+r*30+15)
-        click(loc)
+    print 'solved numbers: %s, solved bombs: %s' % (len(solver.revealed_numbers), len(solver.revealed_bombs))
+    for i in xrange(2):
+        for r,c in solver.revealed_numbers:
+            loc = Location(x+c*30+15, y+r*30+15)
+            click(loc)
     has_move = len(solver.revealed_numbers) > 0
     hover(location)
