@@ -178,7 +178,7 @@ class Solver:
         s = self.board.to_string()
         if self.guess_prob:
             r,c = self.guess_pos
-            i = r*(self.w+1)+c
+            i = r*(self.board.w+1)+c
             s = s[:i]+'?'+s[i+1:]
         return s
 
