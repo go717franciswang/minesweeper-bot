@@ -14,8 +14,16 @@ NUMBER = 11
 def char2box(char):
     if char == '_':
         return HIDDEN
-    else:
-        return int(char)
+    return int(char)
+
+def box2char(box):
+    if box == HIDDEN:
+        return '_'
+    if box == NUMBER:
+        return 'N'
+    if box == BOMB:
+        return '*'
+    return str(box)
 
 class Board:
     def __init__(self, board_matrix, w, h):
@@ -50,6 +58,14 @@ class Board:
                     continue
                 yield (r+dr, c+dc)
 
+    def to_string(self):
+        s = ""
+        for r in xrange(self.h):
+            for c in xrange(self.w):
+                s += box2char(self[(r,c)])
+            s += "\n"
+        return s
+
     def __getitem__(self, pos):
         r, c = pos
         return self.board_matrix[r*self.w+c]
@@ -67,13 +83,18 @@ class Solver:
         self.board = board
         self.revealed_numbers = []
         self.revealed_bombs = []
+        self.guess_pos = None
+        self.guess_prob = None
 
     def solve(self):
         revealed_count = len(self.revealed_numbers)
         self.naive_solve()
         self.conjecture_solve()
         if len(self.revealed_numbers) > revealed_count:
-            self.solve()
+            return self.solve()
+
+        if len(self.revealed_numbers) == 0:
+            self.guess()
 
     def naive_solve(self):
         for pos, n in self.board.each_number_box():
@@ -127,11 +148,23 @@ class Solver:
             for p in number_candidates or []:
                 self.reveal_number(p)
 
-    def backtrack_solve(self, depth):
-        # for each edge box
-        #     assume it's bomb, if we reach a contradiction, then it must be number
-        #     assume it's number, if we reach a contradiction, then it must be bomb
-        pass
+    def guess(self):
+        box_chance = {}
+        for pos, n in self.board.each_number_box():
+            hiddens = self.board.hidden_around(pos)
+            if len(hiddens) == 0:
+                continue
+
+            bombs = self.board.bombs_around(pos)
+            m = float(n-len(bombs))/len(hiddens)
+            for p in hiddens:
+                box_chance.setdefault(p, [])
+                box_chance[p].append(m)
+
+        box_score = []
+        for p, chances in box_chance.iteritems():
+            box_score.append((p, len(chances)/sum(1/x for x in chances)))
+        self.guess_pos, self.guess_prob = sorted(box_score, key=lambda x: x[1])[0]
 
     @staticmethod
     def from_string(s, w, h):
@@ -140,4 +173,12 @@ class Solver:
 
     def fresh_solver(self):
         return Solver(self.board.clone())
+
+    def to_string(self):
+        s = self.board.to_string()
+        if self.guess_prob:
+            r,c = self.guess_pos
+            i = r*(self.w+1)+c
+            s = s[:i]+'?'+s[i+1:]
+        return s
 
